@@ -1,7 +1,7 @@
 package main
 
 import (
-	"fmt"
+	"bytes"
 	"log"
 	"os"
 
@@ -17,16 +17,14 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+
 	var f func(*html.Node)
 	f = func(n *html.Node) {
-		if n.Type == html.ElementNode && n.Data == "h3" {
-			fmt.Printf("%+v\n", n)
-			fmt.Println(n.FirstChild.Data)
-			for _, a := range n.Attr {
-				//fmt.Println(a)
-				if a.Key == "href" {
-					fmt.Println(a.Val)
-				}
+		if n.Type == html.ElementNode && n.Data == "nav" {
+			// fmt.Printf("%+v\n", n)
+			nodes, _ := html.ParseFragment(bytes.NewBufferString("<p>howdy</p>"), n)
+			for _, node := range nodes {
+				n.AppendChild(node)
 			}
 		}
 		for c := n.FirstChild; c != nil; c = c.NextSibling {
@@ -34,4 +32,6 @@ func main() {
 		}
 	}
 	f(doc)
+
+	html.Render(os.Stdout, doc)
 }

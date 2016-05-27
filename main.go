@@ -22,12 +22,6 @@ func main() {
 		if n.Type == html.ElementNode && n.Data == "h3" {
 			fmt.Printf("%+v\n", n)
 			fmt.Println(n.FirstChild.Data)
-			for _, a := range n.Attr {
-				//fmt.Println(a)
-				if a.Key == "href" {
-					fmt.Println(a.Val)
-				}
-			}
 		}
 		for c := n.FirstChild; c != nil; c = c.NextSibling {
 			f(c)
