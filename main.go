@@ -2,7 +2,6 @@ package main
 
 import (
 	"bytes"
-	"fmt"
 	"html/template"
 	"log"
 	"os"
@@ -32,12 +31,12 @@ func main() {
 		if n.Type == html.ElementNode && n.Data == "h3" {
 			for _, a := range n.Attr {
 				if a.Key == "id" {
-					fmt.Println(a.Val)
+					// fmt.Println(a.Val)
 					hx = append(hx, header{Text: n.FirstChild.Data, Id: a.Val})
 					break
 				}
 			}
-			fmt.Printf("%+v\n", n)
+			// fmt.Printf("%+v\n", n)
 			// fmt.Println(n.FirstChild.Data)
 		}
 		for c := n.FirstChild; c != nil; c = c.NextSibling {
@@ -45,11 +44,11 @@ func main() {
 		}
 	}
 	f(doc)
-	fmt.Println(hx)
+	// fmt.Println(hx)
 
 	t, err := template.New("foo").Parse(`<ol>
 {{- range . }}
-<li><a href="{{ .Id }}">{{ .Text }}</a></li>
+<li><a href="#{{ .Id }}">{{ .Text }}</a></li>
 {{- end }}
 </ol>`)
 	if err != nil {
@@ -58,6 +57,24 @@ func main() {
 
 	buf := new(bytes.Buffer)
 	t.Execute(buf, hx)
-	fmt.Println(buf.String())
+	// fmt.Println(buf.String())
+
+	var insert func(*html.Node)
+	insert = func(n *html.Node) {
+		if n.Type == html.ElementNode && n.Data == "nav" {
+			//fmt.Println("Found the NAV")
+			//fmt.Printf("%+v\n", n)
+			nodes, _ := html.ParseFragment(buf, n)
+			for _, node := range nodes {
+				n.AppendChild(node)
+			}
+		}
+		for c := n.FirstChild; c != nil; c = c.NextSibling {
+			insert(c)
+		}
+	}
+	insert(doc)
+
+	html.Render(os.Stdout, doc)
 
 }
