@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"html/template"
 	"log"
 	"os"
 
@@ -9,8 +10,8 @@ import (
 )
 
 type header struct {
-	text string
-	id   string
+	Text string
+	Id   string
 }
 
 func main() {
@@ -31,7 +32,7 @@ func main() {
 			for _, a := range n.Attr {
 				if a.Key == "id" {
 					fmt.Println(a.Val)
-					hx = append(hx, header{text: n.FirstChild.Data, id: a.Val})
+					hx = append(hx, header{Text: n.FirstChild.Data, Id: a.Val})
 					break
 				}
 			}
@@ -44,4 +45,16 @@ func main() {
 	}
 	f(doc)
 	fmt.Println(hx)
+
+	t, err := template.New("foo").Parse(`<ol>
+{{- range . }}
+<li><a href="{{ .Id }}">{{ .Text }}</a></li>
+{{- end }}
+</ol>`)
+	if err != nil {
+		panic(err)
+	}
+
+	t.Execute(os.Stdout, hx)
+
 }
