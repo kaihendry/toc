@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
 	"html/template"
 	"log"
@@ -55,6 +56,8 @@ func main() {
 		panic(err)
 	}
 
-	t.Execute(os.Stdout, hx)
+	buf := new(bytes.Buffer)
+	t.Execute(buf, hx)
+	fmt.Println(buf.String())
 
 }
