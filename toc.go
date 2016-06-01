@@ -1,38 +1,43 @@
-package main
+package toc
 
 import (
 	"bytes"
 	"html/template"
-	"log"
-	"os"
+	"io"
 
 	"golang.org/x/net/html"
 )
 
 type header struct {
 	Text string
-	Id   string
+	ID   string
 }
 
-func main() {
-	h, err := os.Open("test.src.html")
-	if err != nil {
-		log.Fatal(err)
+func in(slice []string, str string) bool {
+	for _, s := range slice {
+		if s == str {
+			return true
+		}
 	}
-	doc, err := html.Parse(h)
+	return false
+}
+
+// HTML finds the headers with ids and populates nav with them
+func HTML(w io.Writer, r io.Reader) error {
+	doc, err := html.Parse(r)
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
 
 	hx := []header{}
 
 	var f func(*html.Node)
 	f = func(n *html.Node) {
-		if n.Type == html.ElementNode && n.Data == "h3" {
+		if n.Type == html.ElementNode && in([]string{"h1", "h2", "h3", "h4", "h5", "h6"}, n.Data) {
 			for _, a := range n.Attr {
 				if a.Key == "id" {
 					// fmt.Println(a.Val)
-					hx = append(hx, header{Text: n.FirstChild.Data, Id: a.Val})
+					hx = append(hx, header{Text: n.FirstChild.Data, ID: a.Val})
 					break
 				}
 			}
@@ -48,11 +53,11 @@ func main() {
 
 	t, err := template.New("foo").Parse(`<ol>
 {{- range . }}
-<li><a href="#{{ .Id }}">{{ .Text }}</a></li>
+<li><a href="#{{ .ID }}">{{ .Text }}</a></li>
 {{- end }}
 </ol>`)
 	if err != nil {
-		panic(err)
+		return err
 	}
 
 	buf := new(bytes.Buffer)
@@ -75,6 +80,7 @@ func main() {
 	}
 	insert(doc)
 
-	html.Render(os.Stdout, doc)
+	html.Render(w, doc)
+	return nil
 
 }
