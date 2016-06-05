@@ -1,11 +1,17 @@
-package toc
+package main
 
 import (
 	"bytes"
+	"fmt"
 	"html/template"
 	"io"
+	"os"
 
 	"golang.org/x/net/html"
+
+	"github.com/tdewolff/minify"
+
+	minhtml "github.com/tdewolff/minify/html"
 )
 
 type header struct {
@@ -23,7 +29,7 @@ func in(slice []string, str string) bool {
 }
 
 // HTML finds the headers with ids and populates nav with them
-func HTML(w io.Writer, r io.Reader) error {
+func toc(w io.Writer, r io.Reader) error {
 	doc, err := html.Parse(r)
 	if err != nil {
 		return err
@@ -66,12 +72,14 @@ func HTML(w io.Writer, r io.Reader) error {
 
 	var insert func(*html.Node)
 	insert = func(n *html.Node) {
-		if n.Type == html.ElementNode && n.Data == "nav" {
-			//fmt.Println("Found the NAV")
-			//fmt.Printf("%+v\n", n)
-			nodes, _ := html.ParseFragment(buf, n)
-			for _, node := range nodes {
-				n.AppendChild(node)
+		if n.Type == html.ElementNode {
+			for _, a := range n.Attr {
+				if a.Key == "data-fill-with" && a.Val == "table-of-contents" {
+					nodes, _ := html.ParseFragment(buf, n)
+					for _, node := range nodes {
+						n.AppendChild(node)
+					}
+				}
 			}
 		}
 		for c := n.FirstChild; c != nil; c = c.NextSibling {
@@ -82,5 +90,41 @@ func HTML(w io.Writer, r io.Reader) error {
 
 	html.Render(w, doc)
 	return nil
+
+}
+
+// HTML Normalise/Standardise/Canonicalize HTML
+func canonicalise(w io.Writer, r io.Reader) error {
+
+	var b bytes.Buffer
+	var minifier = minify.New()
+	minifier.AddFunc("text/html", minhtml.Minify)
+
+	doc, err := html.Parse(r)
+	if err != nil {
+		return err
+	}
+	html.Render(&b, doc)
+
+	m := minify.New()
+	minhtml.Minify(m, w, &b, nil)
+
+	return nil
+}
+
+func main() {
+	if len(os.Args) < 2 {
+		fmt.Println("HTML file required")
+		os.Exit(1)
+	}
+	html, err := os.Open(os.Args[1])
+	if err != nil {
+		panic(err)
+	}
+	defer html.Close()
+
+	var b bytes.Buffer
+	toc(&b, html)
+	canonicalise(os.Stdout, &b)
 
 }
