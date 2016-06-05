@@ -4,6 +4,8 @@
 
 An element with `data-fill-with="table-of-contents"` is filled with an ordered list of the headers.
 
+This allows users to hyperlink directly to answers.
+
 ## Install
 
 	go get github.com/kaihendry/toc
@@ -20,13 +22,13 @@ Run the tool over the HTML
 
 	$ toc foo.html
 
-And the following with print to stdout
+And something like the following should print to `/dev/stdout`
 
-	<html><head></head><body><h1>FAQ</h1>
-
-	<nav data-fill-with="table-of-contents" id="toc"><ol>
-	<li><a href="#how-do-i-create-a-faq">How do I create a FAQ?</a></li>
-	</ol></nav>
-
-	<h3 id="how-do-i-create-a-faq">How do I create a FAQ?</h3><p>Like this!</p>
-	</body></html>
+	<h1>FAQ</h1>
+	<nav data-fill-with=table-of-contents id=toc>
+	<ol>
+	<li><a href=#how-do-i-create-a-faq>How do I create a FAQ?</a>
+	</ol>
+	</nav>
+	<h3 id=how-do-i-create-a-faq>How do I create a FAQ?</h3>
+	<p>Like this!</p>
