@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/zgiber/toc" // change this to your repo after merging (if you merge)
+	"github.com/kaihendry/toc"
 )
 
 // // I'm not dure you want to keep this, so left it commented.. :)
