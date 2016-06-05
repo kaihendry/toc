@@ -8,7 +8,7 @@ This allows users to hyperlink directly to answers.
 
 ## Install
 
-	go get github.com/kaihendry/toc
+	go get github.com/kaihendry/toc/cmd/toc
 
 ## Example
 

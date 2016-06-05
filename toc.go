@@ -2,7 +2,6 @@ package toc
 
 import (
 	"bytes"
-	"fmt"
 	"html/template"
 	"io"
 
@@ -72,8 +71,8 @@ func insertTOCNodes(buf *bytes.Buffer, node *html.Node) {
 	}
 }
 
-// Insert does what it says.. It inserts stuff into other stuff. (please write something nice here)
-func Insert(dst io.Writer, src io.Reader) error {
+// CreateTOC creates the table of contents by finding the headers and inserting them as an ordered list in the placeholder
+func CreateTOC(dst io.Writer, src io.Reader) error {
 	doc, err := html.Parse(src)
 	if err != nil {
 		return err
@@ -81,7 +80,7 @@ func Insert(dst io.Writer, src io.Reader) error {
 
 	headers := []header{}
 	getHeaders(&headers, doc)
-	fmt.Println(headers)
+	// fmt.Println(headers)
 
 	// TODO: make this nicer?
 	t, _ := template.New("foo").Parse(`<ol>

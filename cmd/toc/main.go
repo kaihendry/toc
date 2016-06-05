@@ -18,6 +18,6 @@ func main() {
 	}
 	defer html.Close()
 
-	toc.Insert(os.Stdout, html)
+	toc.CreateTOC(os.Stdout, html)
 
 }
