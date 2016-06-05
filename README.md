@@ -1,6 +1,6 @@
 # Creates a table of contents
 
-<img src=http://s.natalian.org/2016-06-05/toc.gif alt="Demo"
+<img src=http://s.natalian.org/2016-06-05/toc.gif alt="Demo">
 
 An element with `data-fill-with="table-of-contents"` is filled with an ordered list of the headers.
 
