@@ -6,7 +6,7 @@ An element with `data-fill-with="table-of-contents"` is filled with an ordered l
 
 ## Install
 
-go install github.com/kaihendry/toc
+	go get github.com/kaihendry/toc
 
 ## Example
 
