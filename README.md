@@ -35,4 +35,4 @@ And something like the following should print to `/dev/stdout`
 
 ## Acknowledgements
 
-Many thanks to [tabatkins's bikeshed](https://github.com/tabatkins/bikeshed) for the inspiration.
+Many thanks to [tabatkins's bikeshed](https://github.com/tabatkins/bikeshed) for the inspiration & the most helpful [Golang programmer I know, Zoltan](https://github.com/zgiber).

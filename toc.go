@@ -1,17 +1,16 @@
-package main
+package toc
 
 import (
 	"bytes"
 	"fmt"
 	"html/template"
 	"io"
-	"os"
 
 	"golang.org/x/net/html"
+)
 
-	"github.com/tdewolff/minify"
-
-	minhtml "github.com/tdewolff/minify/html"
+var (
+	headerTags = []string{"h1", "h2", "h3", "h4", "h5", "h6"}
 )
 
 type header struct {
@@ -19,110 +18,83 @@ type header struct {
 	ID   string
 }
 
-func in(slice []string, str string) bool {
-	for _, s := range slice {
-		if s == str {
+func isHeader(node *html.Node) bool {
+	if node.Type != html.ElementNode {
+		return false
+	}
+
+	for _, tag := range headerTags {
+		if tag == node.Data {
 			return true
+		}
+	}
+
+	return false
+}
+
+func getHeaders(headers *[]header, node *html.Node) {
+	if isHeader(node) {
+		for _, attr := range node.Attr {
+			if attr.Key == "id" {
+				*headers = append(*headers, header{node.FirstChild.Data, attr.Val})
+				break
+			}
+		}
+	}
+
+	for nextNode := node.FirstChild; nextNode != nil; nextNode = nextNode.NextSibling {
+		getHeaders(headers, nextNode)
+	}
+}
+
+func isTOCPlaceholder(node *html.Node) bool {
+	if node.Type == html.ElementNode {
+		for _, attr := range node.Attr {
+			if attr.Key == "data-fill-with" &&
+				attr.Val == "table-of-contents" {
+				return true
+			}
 		}
 	}
 	return false
 }
 
-// HTML finds the headers with ids and populates nav with them
-func toc(w io.Writer, r io.Reader) error {
-	doc, err := html.Parse(r)
+func insertTOCNodes(buf *bytes.Buffer, node *html.Node) {
+	if isTOCPlaceholder(node) {
+		nodes, _ := html.ParseFragment(buf, node)
+		for _, n := range nodes {
+			node.AppendChild(n)
+		}
+	}
+
+	for nextNode := node.FirstChild; nextNode != nil; nextNode = nextNode.NextSibling {
+		insertTOCNodes(buf, nextNode)
+	}
+}
+
+// Insert does what it says.. It inserts stuff into other stuff. (please write something nice here)
+func Insert(dst io.Writer, src io.Reader) error {
+	doc, err := html.Parse(src)
 	if err != nil {
 		return err
 	}
 
-	hx := []header{}
+	headers := []header{}
+	getHeaders(&headers, doc)
+	fmt.Println(headers)
 
-	var f func(*html.Node)
-	f = func(n *html.Node) {
-		if n.Type == html.ElementNode && in([]string{"h1", "h2", "h3", "h4", "h5", "h6"}, n.Data) {
-			for _, a := range n.Attr {
-				if a.Key == "id" {
-					// fmt.Println(a.Val)
-					hx = append(hx, header{Text: n.FirstChild.Data, ID: a.Val})
-					break
-				}
-			}
-			// fmt.Printf("%+v\n", n)
-			// fmt.Println(n.FirstChild.Data)
-		}
-		for c := n.FirstChild; c != nil; c = c.NextSibling {
-			f(c)
-		}
-	}
-	f(doc)
-	// fmt.Println(hx)
-
-	t, err := template.New("foo").Parse(`<ol>
+	// TODO: make this nicer?
+	t, _ := template.New("foo").Parse(`<ol>
 {{- range . }}
 <li><a href="#{{ .ID }}">{{ .Text }}</a></li>
 {{- end }}
 </ol>`)
-	if err != nil {
-		return err
-	}
 
 	buf := new(bytes.Buffer)
-	t.Execute(buf, hx)
-	// fmt.Println(buf.String())
+	t.Execute(buf, headers)
 
-	var insert func(*html.Node)
-	insert = func(n *html.Node) {
-		if n.Type == html.ElementNode {
-			for _, a := range n.Attr {
-				if a.Key == "data-fill-with" && a.Val == "table-of-contents" {
-					nodes, _ := html.ParseFragment(buf, n)
-					for _, node := range nodes {
-						n.AppendChild(node)
-					}
-				}
-			}
-		}
-		for c := n.FirstChild; c != nil; c = c.NextSibling {
-			insert(c)
-		}
-	}
-	insert(doc)
-
-	html.Render(w, doc)
-	return nil
-
-}
-
-// HTML Normalise/Standardise/Canonicalize HTML
-func canonicalise(w io.Writer, r io.Reader) error {
-
-	var b bytes.Buffer
-	var minifier = minify.New()
-	minifier.AddFunc("text/html", minhtml.Minify)
-
-	doc, err := html.Parse(r)
-	if err != nil {
-		return err
-	}
-	html.Render(&b, doc)
-
-	m := minify.New()
-	minhtml.Minify(m, w, &b, nil)
+	insertTOCNodes(buf, doc)
+	html.Render(dst, doc)
 
 	return nil
-}
-
-func main() {
-	if len(os.Args) < 2 {
-		fmt.Println("HTML file required")
-		os.Exit(1)
-	}
-	html, err := os.Open(os.Args[1])
-	if err != nil {
-		panic(err)
-	}
-	defer html.Close()
-
-	toc(os.Stdout, html)
-
 }
