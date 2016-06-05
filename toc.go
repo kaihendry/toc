@@ -123,8 +123,6 @@ func main() {
 	}
 	defer html.Close()
 
-	var b bytes.Buffer
-	toc(&b, html)
-	canonicalise(os.Stdout, &b)
+	toc(os.Stdout, html)
 
 }
