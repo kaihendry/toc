@@ -32,3 +32,7 @@ And something like the following should print to `/dev/stdout`
 	</nav>
 	<h3 id=how-do-i-create-a-faq>How do I create a FAQ?</h3>
 	<p>Like this!</p>
+
+## Acknowledgements
+
+Many thanks to [tabatkins's bikeshed](https://github.com/tabatkins/bikeshed) for the inspiration.
