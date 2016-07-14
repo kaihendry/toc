@@ -1,4 +1,4 @@
-# Creates a table of contents
+# Creates a table of contents from [h1, h2, h3, h4, h5, and h6 elements](https://html.spec.whatwg.org/multipage/semantics.html#the-h1,-h2,-h3,-h4,-h5,-and-h6-elements)
 
 [![Build Status](https://travis-ci.org/kaihendry/toc.svg?branch=master)](https://travis-ci.org/kaihendry/toc)
 
