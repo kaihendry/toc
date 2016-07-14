@@ -1,5 +1,7 @@
 # Creates a table of contents
 
+[![Build Status](https://travis-ci.org/kaihendry/toc.svg?branch=master)](https://travis-ci.org/kaihendry/toc)
+
 <img src=http://s.natalian.org/2016-06-05/toc.gif alt="Demo">
 
 An element with `data-fill-with="table-of-contents"` is filled with an ordered list of the headers.
