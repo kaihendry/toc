@@ -1,4 +1,4 @@
-package main // import github.com/kaihendry/toc/cmd/toc
+package main
 
 import (
 	"fmt"
