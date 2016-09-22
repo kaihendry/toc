@@ -8,6 +8,12 @@ import (
 	"golang.org/x/net/html"
 )
 
+var t = template.Must(template.New("tocheadermarkup").Parse(`<ol>
+{{- range . }}
+<li><a href="#{{ .ID }}">{{ .Text }}</a></li>
+{{- end }}
+</ol>`))
+
 var (
 	headerTags = []string{"h1", "h2", "h3", "h4", "h5", "h6"}
 )
@@ -81,13 +87,6 @@ func CreateTOC(dst io.Writer, src io.Reader) error {
 	headers := []header{}
 	getHeaders(&headers, doc)
 	// fmt.Println(headers)
-
-	// TODO: make this nicer?
-	t, _ := template.New("foo").Parse(`<ol>
-{{- range . }}
-<li><a href="#{{ .ID }}">{{ .Text }}</a></li>
-{{- end }}
-</ol>`)
 
 	buf := new(bytes.Buffer)
 	t.Execute(buf, headers)
