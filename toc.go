@@ -1,3 +1,6 @@
+/*
+Package toc inserts a Table of Contents as an ordered list given HTML with header tags.
+*/
 package toc
 
 import (
@@ -77,8 +80,8 @@ func insertTOCNodes(buf *bytes.Buffer, node *html.Node) {
 	}
 }
 
-// CreateTOC creates the table of contents by finding the headers and inserting them as an ordered list in the placeholder
-func CreateTOC(dst io.Writer, src io.Reader) error {
+// Create the table of contents by finding the headers and inserting them as an ordered list in the placeholder.
+func Create(dst io.Writer, src io.Reader) error {
 	doc, err := html.Parse(src)
 	if err != nil {
 		return err

@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"os"
 
 	"github.com/kaihendry/toc"
@@ -14,10 +15,10 @@ func main() {
 	}
 	html, err := os.Open(os.Args[1])
 	if err != nil {
-		panic(err)
+		log.Fatalln(err)
 	}
 	defer html.Close()
 
-	toc.CreateTOC(os.Stdout, html)
+	toc.Create(os.Stdout, html)
 
 }
