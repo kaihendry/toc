@@ -10,7 +10,13 @@ This allows users to hyperlink directly to answers.
 
 ## Install
 
-	go get github.com/kaihendry/toc/cmd/toc
+To install:
+
+	go install github.com/kaihendry/toc/cmd/toc
+
+To keep upto date:
+
+	go get -u github.com/kaihendry/toc/cmd/toc
 
 ## Example
 
